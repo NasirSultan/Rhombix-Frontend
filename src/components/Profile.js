@@ -1,120 +1,80 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // For redirection
-import { Container, Row, Col, Card, Alert } from "react-bootstrap";
-import Dashboard from "./Dashboard"; 
+import { Container, Row, Col, Card, Spinner, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom"; // Updated import for react-router-dom v6
 
 const Profile = () => {
-  const [user, setUser] = useState(null); // Store user data
-  const [alertMessage, setAlertMessage] = useState(""); // Store alert message
-  const [alertType, setAlertType] = useState(""); // Store alert type
-  const navigate = useNavigate(); // For redirection
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const navigate = useNavigate(); // Hook to use navigation
 
   useEffect(() => {
-    // Check for the token in localStorage
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      // Redirect to the login page if no token is found
-      navigate("/");
+    // Fetch user data from localStorage
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    console.log("Stored User:", storedUser); // Log the user data
+    console.log("Stored Token:", storedToken); // Log the token data
+
+    if (storedUser && storedToken) {
+      const parsedUser = JSON.parse(storedUser); // Parse user data
+      setUser(parsedUser); // Set user state
+      setLoading(false); // Stop loading
     } else {
-      // Simulate fetching user data (you can replace this with an actual API call)
-      fetchUserData(token);
+      setError("No user data found. Please log in again.");
+      setLoading(false); // Stop loading even if there's an error
     }
-  }, [navigate]);
+  }, []);
 
-  const fetchUserData = async (token) => {
-    try {
-      // Simulate an API call to fetch user data
-      const response = await fetch("http://localhost:8000/api/profile", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`, // Send the token in the Authorization header
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user); // Update the user state with fetched data
-      } else {
-        // Handle token expiration or invalid token
-        setAlertMessage("Your session has expired. Please log in again.");
-        setAlertType("danger");
-        localStorage.removeItem("token"); // Remove the invalid token
-        navigate("/login"); // Redirect to login
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      setAlertMessage("An error occurred while fetching profile data.");
-      setAlertType("danger");
-    }
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token"); // Clear user data and token from localStorage
+    setUser(null); // Clear user state
+    navigate("/"); // Redirect to the default/login page
   };
 
-  useEffect(() => {
-    // Auto-remove the alert after 5 seconds
-    const timer = setTimeout(() => {
-      setAlertMessage(""); // Clear the message after 5 seconds
-    }, 5000);
-
-    return () => clearTimeout(timer); // Cleanup the timer on component unmount
-  }, [alertMessage]);
-
   return (
-    <>
-      <Dashboard />
-      <Container fluid className="mt-5 pt-4">
-        <Row>
-          <Col md={3}>
-            {/* Placeholder for sidebar */}
-          </Col>
-          <Col md={9}>
-            <Card className="shadow-lg p-4" style={{ marginRight: '40px', marginTop: '20px', marginBottom: '30px' }}>
-              <h2 className="card-title text-center mb-4">Profile</h2>
-
-              {/* Conditionally render the alert message */}
-              {alertMessage && (
-                <Alert variant={alertType} dismissible>
-                  {alertMessage}
-                </Alert>
-              )}
-
-              {/* Profile content */}
-              {user ? (
-                <Row className="align-items-center">
-                  <Col md={6} className="text-center">
-                    <h5>{user.name}</h5>
-                    <p>{user.email}</p>
-                  </Col>
-                  <Col md={6} className="text-center">
-                    <img
-                      src={user.profile_picture || "https://via.placeholder.com/150"}
-                      alt="Profile"
-                      className="rounded-circle"
-                      style={{
-                        width: "150px",
-                        height: "150px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </Col>
-                </Row>
-              ) : (
-                <p className="text-center">Loading profile...</p>
-              )}
-            </Card>
-
-            {/* Internship Tasks */}
-            <Card className="shadow-lg p-4 mt-4" style={{ marginRight: '40px', marginBottom: '30px' }}>
-              <h3 className="card-title text-center mb-4">Internship Tasks</h3>
-              <ul className="list-group">
-                <li className="list-group-item">Developed a user authentication system with secure login and registration features.</li>
-                <li className="list-group-item">Integrated API endpoints to fetch and display dynamic data.</li>
-                <li className="list-group-item">Worked on creating responsive and interactive UI components using React and Bootstrap.</li>
-                <li className="list-group-item">Collaborated with the backend team to debug and enhance system performance.</li>
-              </ul>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </>
+    <Container fluid className="mt-5 pt-4 px-0">
+      <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8}>
+          {/* Profile Section */}
+          <Card
+            className="shadow-lg p-4 bg-light border-0 rounded-lg"
+            style={{
+              maxWidth: "70%", // Setting card width to 70%
+              margin: "0 auto", // Center the card
+              backgroundColor: "#f8f9fa", // Light background color
+              borderRadius: "15px", // Rounded corners
+            }}
+          >
+            <h2 className="card-title text-center text-primary mb-4">Profile</h2>
+            {loading ? (
+              <div className="text-center">
+                <Spinner animation="border" variant="primary" />
+                <p>Loading profile...</p>
+              </div>
+            ) : error ? (
+              <p className="text-center text-danger">{error}</p>
+            ) : user ? (
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h5 className="text-2xl font-bold text-black">{user.name}</h5>
+                  <p className="text-muted">{user.email}</p>
+                </div>
+                <Button variant="danger" onClick={handleLogout}>
+                  Log Out
+                </Button>
+              </div>
+            ) : (
+              <p className="text-center text-danger">
+                No user data found. Please log in again.
+              </p>
+            )}
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
