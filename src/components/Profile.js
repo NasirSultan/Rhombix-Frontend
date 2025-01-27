@@ -10,13 +10,52 @@ const Profile = () => {
   const navigate = useNavigate(); // For redirection
 
   useEffect(() => {
+    // Check for the token in localStorage
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      // Redirect to the login page if no token is found
+      navigate("/");
+    } else {
+      // Simulate fetching user data (you can replace this with an actual API call)
+      fetchUserData(token);
+    }
+  }, [navigate]);
+
+  const fetchUserData = async (token) => {
+    try {
+      // Simulate an API call to fetch user data
+      const response = await fetch("http://localhost:8000/api/profile", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`, // Send the token in the Authorization header
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user); // Update the user state with fetched data
+      } else {
+        // Handle token expiration or invalid token
+        setAlertMessage("Your session has expired. Please log in again.");
+        setAlertType("danger");
+        localStorage.removeItem("token"); // Remove the invalid token
+        navigate("/login"); // Redirect to login
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setAlertMessage("An error occurred while fetching profile data.");
+      setAlertType("danger");
+    }
+  };
+
+  useEffect(() => {
     // Auto-remove the alert after 5 seconds
     const timer = setTimeout(() => {
       setAlertMessage(""); // Clear the message after 5 seconds
     }, 5000);
 
     return () => clearTimeout(timer); // Cleanup the timer on component unmount
-  }, []);
+  }, [alertMessage]);
 
   return (
     <>
@@ -46,7 +85,7 @@ const Profile = () => {
                   </Col>
                   <Col md={6} className="text-center">
                     <img
-                      src={user.profile_picture}
+                      src={user.profile_picture || "https://via.placeholder.com/150"}
                       alt="Profile"
                       className="rounded-circle"
                       style={{
