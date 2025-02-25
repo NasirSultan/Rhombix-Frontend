@@ -1,12 +1,19 @@
-import React from "react";
-
-const App = () => {
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Auth from "./components/Auth";
+import Dashboard from "./components/Dashboard";
+import UploadMusic from "./components/UploadMusic";
+import FetchSongsByCategory from "./components/FetchSongsByCategory";
+function App() {
   return (
-    <div className="p-4">
-      <h1>Welcome to My App</h1>
-      <p>This is a simple default setup.</p>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Auth />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/upload" element={<UploadMusic />} />
+        <Route path="/play" element={<FetchSongsByCategory />} />
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;
