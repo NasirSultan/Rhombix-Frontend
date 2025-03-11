@@ -32,16 +32,22 @@ In the project directory, you can run:
 ### `npm start`
 
 Runs the app in development mode.
+
 Open http://localhost:3000 to view it in the browser.
+
 	•	The page will reload automatically on code changes.
+
 	•	You may see any lint errors in the console.
 
 
 ### `npm run build`
 
 Builds the app for production to the build folder.
+
 	•	Optimizes the React build for best performance.
+
 	•	Minifies the code and bundles files efficiently.
+
 	•	Filenames include hashes for cache busting.
 
 Your app is ready to be deployed.
@@ -60,19 +66,29 @@ You typically don’t need to eject unless you require advanced configurations.
 
 Learn More
 	•	React Documentation
+
 	•	Create React App Documentation
 
 Additional Resources
+
 	•	Code Splitting
+
 	•	Analyzing Bundle Size
+
 	•	Making a Progressive Web App (PWA)
+
 	•	Advanced Configuration
+
 	•	Troubleshooting Build Issues
 
 Features
+
 	•	Upload songs with title and category.
+
 	•	View a list of uploaded songs.
+
 	•	Play audio files directly from the browser.
+
 	•	Delete uploaded songs.
 
 ## Learn More
@@ -83,18 +99,25 @@ Official Documentation
 
 	•	React.js — A JavaScript library for building user interfaces.
 https://reactjs.org/docs/getting-started.html
+
 	•	Create React App — Set up a modern React app by running one command.
 https://create-react-app.dev/docs/getting-started
+
 	•	Axios — Promise-based HTTP client for making API requests.
 https://axios-http.com/docs/intro
+
 	•	React Router DOM — Declarative routing for React applications.
 https://reactrouter.com/en/main
+
 	•	Bootstrap 5 — Popular CSS framework for responsive design and UI components.
 https://getbootstrap.com/docs/5.0/getting-started/introduction
+
 	•	Laravel API (Backend) — The backend API service is developed using Laravel.
 https://laravel.com/docs/10.x
+
 	•	React Player (Optional for advanced audio/video) — A React component for playing media from various sources.
 https://www.npmjs.com/package/react-player
+
 	•	React Howler (Optional for advanced audio controls) — React integration for Howler.js, an audio library.
 https://www.npmjs.com/package/react-howler
 
