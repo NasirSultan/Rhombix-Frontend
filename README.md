@@ -3,7 +3,7 @@ This project was bootstrapped with Create React App.
 
 It allows users to upload, view, play, and delete songs via a Laravel backend API.
 
-## Features
+# Features
 	•	Music Upload: Upload songs with a title and category selection (e.g., Pakistani, Indian).
 	•	Audio Playback: Play songs directly in the browser using a responsive audio player.
     •	Category-wise Display: Display songs based on categories.
@@ -14,7 +14,9 @@ It allows users to upload, view, play, and delete songs via a Laravel backend AP
 # Getting Started with Create React App
 
 Prerequisites
+
 	•	Node.js (v14 or later)
+
 	•	npm (v6 or later)
 
 ## Installation Command
