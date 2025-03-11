@@ -11,7 +11,7 @@ It allows users to upload, view, play, and delete songs via a Laravel backend AP
     •	User-friendly UI: Simple and clean interface with responsive design.
 	•	Private API Access: Secure communication with Laravel backend using API tokens.
 
-# Getting Started with Create React App
+## Getting Started with Create React App
 
 Prerequisites
 
@@ -19,7 +19,8 @@ Prerequisites
 
 	•	npm (v6 or later)
 
-## Installation Command
+# Installation Command
+
 npm install axios react-router-dom react-player bootstrap
 
 ## Available Scripts
