@@ -9,7 +9,6 @@ This is the backend API built with Laravel to support a React.js-based Music Upl
 	•	Fetch and list uploaded songs via API.
 	•	Stream and play audio files directly.
 	•	Delete songs and manage the music library.
-	•	CORS enabled for React frontend interaction.
 	•	File validation and secure storage management.
 
 # Technologies Used
@@ -18,7 +17,6 @@ This is the backend API built with Laravel to support a React.js-based Music Upl
 	•	MySQL/MariaDB for database
 	•	RESTful API architecture
 	•	Laravel Storage for file handling
-	•	CORS for cross-origin requests
 	•	Validation and file security
 	•	Migrations and Eloquent ORM
 
@@ -27,13 +25,13 @@ This is the backend API built with Laravel to support a React.js-based Music Upl
 Prerequisites
 	•	PHP 8.1 or later
 	•	Composer
-	•	MySQL/MariaDB
-	•	Laravel CLI (optional)
+	•	MySQL
+
 
 # Steps
 	1.	Clone the repository:
 
-git clone https://github.com/your-repo/music-upload-api.git
+git clone https://github.com/NasirSultan/Rhombix-Frontend/tree/backendmusic
 cd music-upload-api
 
 	2.	Install dependencies:
@@ -75,7 +73,6 @@ Note: API accepts JSON requests and file uploads via multipart/form-data.
 
 	•	Input validation for file types, size, and metadata.
 	•	Secure file storage with hashed filenames.
-	•	CORS enabled for interaction with React frontend.
 
 # Learn More
 	•	Laravel Documentation
@@ -84,7 +81,6 @@ Note: API accepts JSON requests and file uploads via multipart/form-data.
 	•	File Storage
 	•	Routing
 	•	Validation
-	•	CORS Handling
 
 # Future Enhancements
 
