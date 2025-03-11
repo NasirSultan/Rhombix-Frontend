@@ -15,6 +15,10 @@ const Auth = () => {
     try {
       const response = await authUser({ email, password, name: isRegister ? name : null });
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("email", email); // Store email in local storage
+      if (isRegister) {
+        localStorage.setItem("name", name); // Store name if registering
+      }
       navigate("/upload");
     } catch (err) {
       setError("Authentication failed. Try again.");

@@ -36,3 +36,58 @@
     transform: rotate(360deg);
   }
 }
+.song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.song-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.song-info {
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-audio {
+  flex-grow: 1;
+  margin: 0 15px;
+}
+
+.song-btn {
+  white-space: nowrap;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .song-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .song-audio {
+    margin: 15px 0;
+  }
+
+  .song-btn {
+    text-align: right;
+  }
+}
+.song-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}

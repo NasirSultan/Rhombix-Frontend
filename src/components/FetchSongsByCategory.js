@@ -1,188 +1,290 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import {
+  FaPlay,
+  FaPause,
+  FaStepBackward,
+  FaStepForward,
+  FaVolumeUp,
+  FaMusic,
+  FaList,
+} from "react-icons/fa";
 
 const FetchSongsByCategory = () => {
-  const [categoryId, setCategoryId] = useState("");
   const [songs, setSongs] = useState([]);
-  const [message, setMessage] = useState("");
+  const [selectedSongs, setSelectedSongs] = useState([]);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [categoryId, setCategoryId] = useState("");  // Category ID state
+  const [selectAll, setSelectAll] = useState(false);  // Select all toggle
+  const [showDropdown, setShowDropdown] = useState(true);
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
   const audioRef = useRef(null);
-  const progressRef = useRef(null);
 
+  // Fetch songs based on category or fetch all songs by default
   const fetchSongs = async () => {
     try {
-      const url =
-        categoryId === ""
-          ? "http://127.0.0.1:8000/api/songs"
-          : `http://127.0.0.1:8000/api/songs/category/${categoryId}`;
+      // Always fetch from http://127.0.0.1:8000/api/songs as default.
+      const url = categoryId
+        ? `http://127.0.0.1:8000/api/songs/category/${categoryId}`
+        : "http://127.0.0.1:8000/api/songs"; // Default API for all songs
 
       const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
+
       setSongs(response.data);
-      setCurrentSongIndex(0); // Reset to the first song
+      setSelectedSongs([]); // Reset selected songs when new data is fetched
+      setSelectAll(false); // Reset selectAll checkbox when data is fetched
+      setCurrentSongIndex(0);
     } catch (error) {
-      setMessage("Failed to fetch songs.");
-      setSongs([]);
+      console.error("Failed to fetch songs.");
+      setSongs([]); // Reset songs in case of error
     }
-  };
-
-  const handleCategoryChange = (e) => {
-    setCategoryId(e.target.value);
-  };
-
-  const handlePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play(); // Play when clicked
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleSkip = () => {
-    if (currentSongIndex < songs.length - 1) {
-      setCurrentSongIndex(currentSongIndex + 1); // Move to the next song
-    } else {
-      setCurrentSongIndex(0); // Loop to the first song if it's the last one
-    }
-  };
-
-  const handleBack = () => {
-    if (currentSongIndex > 0) {
-      setCurrentSongIndex(currentSongIndex - 1); // Move to the previous song
-    } else {
-      setCurrentSongIndex(songs.length - 1); // Loop to the last song if it's the first one
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    const current = audioRef.current;
-    setCurrentTime(current.currentTime);
-    setDuration(current.duration);
-
-    // Update the progress bar based on current time
-    if (progressRef.current) {
-      progressRef.current.value = (current.currentTime / current.duration) * 100;
-    }
-  };
-
-  const handleSeek = (e) => {
-    const seekTime = (e.target.value / 100) * duration;
-    if (audioRef.current) {
-      audioRef.current.currentTime = seekTime; // Directly set currentTime without restarting
-      setCurrentTime(seekTime); // Update currentTime state for UI sync
-    }
-  };
-
-  const handleVolumeChange = (e) => {
-    const volumeValue = e.target.value;
-    setVolume(volumeValue);
-    if (audioRef.current) {
-      audioRef.current.volume = volumeValue; // Adjust volume
-    }
-  };
-
-  const handleSongSelect = (index) => {
-    setCurrentSongIndex(index);
-    setIsPlaying(false); // Pause the previous song if it's playing
-  };
-
-  const handleSongEnd = () => {
-    handleSkip(); // Auto skip to next song
   };
 
   useEffect(() => {
     fetchSongs();
-  }, [categoryId]);
+  }, [categoryId]); // Re-fetch when categoryId changes
+
+  // Format time (mm:ss)
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
+  // Song selection handlers
+  const handleSongSelection = (song) => {
+    setSelectedSongs((prevSongs) =>
+      prevSongs.includes(song)
+        ? prevSongs.filter((s) => s !== song)
+        : [...prevSongs, song]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedSongs([]); // Deselect all songs
+    } else {
+      setSelectedSongs(songs); // Select all songs
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleStartPlaying = () => {
+    if (selectedSongs.length > 0) {
+      setCurrentSongIndex(0);
+      setIsPlaying(true);
+      setShowDropdown(false);
+    }
+  };
+
+  const handleBackToSelection = () => {
+    setIsPlaying(false);
+    setShowDropdown(true);
+  };
+
+  // Navigation handlers
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      audioRef.current.pause(); // Pause audio manually
+    } else {
+      audioRef.current.play(); // Play audio manually
+    }
+    setIsPlaying((prev) => !prev); // Toggle isPlaying state
+  };
+
+  const handleSkip = () => {
+    setCurrentSongIndex((prev) => (prev + 1) % selectedSongs.length);
+    setIsPlaying(true);
+  };
+
+  const handleBack = () => {
+    setCurrentSongIndex((prev) => (prev - 1 + selectedSongs.length) % selectedSongs.length);
+    setIsPlaying(true);
+  };
+
+  // Audio handlers
+  const handleTimeUpdate = () => {
+    setCurrentTime(audioRef.current.currentTime);
+  };
+
+  const handleLoadedMetadata = () => {
+    setDuration(audioRef.current.duration);
+  };
+
+  const handleSeek = (e) => {
+    const seekTime = (e.target.value / 100) * duration;
+    audioRef.current.currentTime = seekTime;
+  };
+
+  const handleEnded = () => {
+    handleSkip();
+  };
 
   useEffect(() => {
-    if (currentSongIndex !== null && songs.length > 0 && audioRef.current) {
-      // When the song changes, load it and start playing
-      audioRef.current.load();
-      audioRef.current.play();
-      setIsPlaying(true); // Start playing the song when selected
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
     }
-  }, [currentSongIndex]);
+  }, [volume, currentSongIndex]);
 
   return (
-    <div>
-      <h2>Fetch Songs</h2>
+    <div className="container my-5">
+      <h2 className="text-center text-primary">
+        <FaMusic /> AudioList
+      </h2>
 
-      {/* Category Selection */}
-      <select value={categoryId} onChange={handleCategoryChange}>
-        <option value="">All Songs</option>
-        <option value="1">Indian</option>
-        <option value="2">Punjabi</option>
-      </select>
+      {showDropdown ? (
+        <>
+          {/* Category Selector */}
+          <div className="d-flex flex-column align-items-center">
+            <div className="form-group d-flex align-items-center w-50">
+              <label className="me-2 fw-bold">Select Category:</label>
+              <select
+                className="form-control w-50"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
+                <option value="">All Songs</option>
+                <option value="4">Pakitan </option>
+                <option value="5">Indian</option>
+              </select>
+            </div>
 
-      {message && <p>{message}</p>}
+            {/* Song Selector */}
+            <div className="d-flex justify-content-between align-items-center w-75 mx-auto mt-3 ">
+              <label className="fw-bold mx-2">Select Songs:</label>
+              <div className="d-flex align-items-center mx-3">
+              <span className="fw-bold mx-2">Select All</span>
+                <input
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                  className="me-2"
+                />
+             
+              </div>
+            </div>
 
-      {/* Song List */}
-      <h3>Songs</h3>
-      {songs.length === 0 && <p>No songs available.</p>}
-      <ul>
-        {songs.map((song, index) => (
-          <li key={song.id} onClick={() => handleSongSelect(index)}>
-            <p>{song.title}</p>
-          </li>
-        ))}
-      </ul>
-
-      {/* Music Player */}
-      {currentSongIndex !== null && songs.length > 0 && (
-        <div>
-          <h3>Now Playing: {songs[currentSongIndex].title}</h3>
-          <audio
-            ref={audioRef}
-            src={`http://127.0.0.1:8000/storage/${songs[currentSongIndex].file_path}`}
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleTimeUpdate}
-            onEnded={handleSongEnd}
-          >
-            Your browser does not support the audio element.
-          </audio>
-          <div>
-            <button onClick={handlePlayPause}>
-              {isPlaying ? "Pause" : "Play"}
-            </button>
-            <button onClick={handleBack}>Back</button>
-            <button onClick={handleSkip}>Next</button>
+            {/* Song Table */}
+            <div
+              className="table-responsive w-75 mx-auto mt-2"
+              style={{ maxHeight: "300px", overflowY: "auto" }}
+            >
+              <table className="table table-hover table-bordered text-center">
+                <thead className="table-dark">
+                  <tr>
+                    <th>Select</th>
+                    <th>Title</th>
+                    <th>File Path</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {songs.map((song) => (
+                    <tr key={song.id}>
+                      
+                      <td>{song.title}</td>
+                      <td>{song.file_path}</td>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedSongs.includes(song)}
+                          onChange={() => handleSongSelection(song)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div>
-            <p>
-              {Math.floor(currentTime)} / {Math.floor(duration)} sec
-            </p>
-            <input
-              ref={progressRef}
-              type="range"
-              min="0"
-              max="100"
-              value={(currentTime / duration) * 100}
-              onChange={handleSeek}
-            />
-          </div>
+          {selectedSongs.length > 0 && (
+            <div className="text-center mt-3">
+              <button className="btn btn-success" onClick={handleStartPlaying}>
+                <FaPlay className="me-2" />
+                Play Selected Songs
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        // 🎵 Player Section
+        <div className="d-flex justify-content-center mt-4">
+          <div className="card w-50 shadow-lg border-0">
+            <div className="card-body text-center">
+              <h4 className="card-title text-success">
+                Now Playing: {selectedSongs[currentSongIndex].title}
+              </h4>
 
-          <div>
-            <label>Volume</label>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={volume}
-              onChange={handleVolumeChange}
-            />
+              <audio
+                ref={audioRef}
+                src={`http://127.0.0.1:8000/storage/${selectedSongs[currentSongIndex].file_path}`}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={handleEnded}
+                autoPlay={isPlaying}
+              />
+
+              {/* Time & Progress */}
+              <div className="my-3">
+                <span>{formatTime(currentTime)}</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={duration ? (currentTime / duration) * 100 : 0}
+                  onChange={handleSeek}
+                  className="mx-3 w-50"
+                />
+                <span>{formatTime(duration)}</span>
+              </div>
+
+              {/* Controls */}
+              <div className="my-3">
+                <button className="btn btn-secondary mx-2" onClick={handleBack}>
+                  <FaStepBackward />
+                </button>
+                <button
+                  className="btn btn-primary mx-2"
+                  onClick={handlePlayPause}
+                >
+                  {isPlaying ? <FaPause /> : <FaPlay />}
+                </button>
+                <button className="btn btn-secondary mx-2" onClick={handleSkip}>
+                  <FaStepForward />
+                </button>
+              </div>
+
+              {/* Volume */}
+              <div className="d-flex justify-content-center align-items-center mt-3">
+                <FaVolumeUp className="me-2" />
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={volume}
+                  onChange={(e) => setVolume(parseFloat(e.target.value))}
+                  className="form-range w-50"
+                />
+              </div>
+
+              {/* Back to Selection */}
+              <button
+                className="btn btn-outline-dark mt-4"
+                onClick={handleBackToSelection}
+              >
+                <FaList className="me-2" />
+                Select Songs to Play Again
+              </button>
+            </div>
           </div>
         </div>
       )}
