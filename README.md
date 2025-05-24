@@ -4,7 +4,7 @@ This project demonstrates how to create and use a **custom facade in Laravel** t
 
 ---
 
-## 🚀 Features
+## Features
 
 - Custom Laravel Facade (`Invoice`)
 - Service container binding using singleton
