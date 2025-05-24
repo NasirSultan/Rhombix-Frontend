@@ -3,16 +3,18 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-
+use App\Services\Invoice;
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-        //
-    }
+public function register()
+{
+    $this->app->singleton('invoice', function () {
+        return new Invoice();
+    });
+}
 
     /**
      * Bootstrap any application services.

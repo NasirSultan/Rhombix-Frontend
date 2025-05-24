@@ -6,3 +6,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+use App\Http\Controllers\InvoiceController;
+
+Route::post('/generate-invoice', [InvoiceController::class, 'generate']);
